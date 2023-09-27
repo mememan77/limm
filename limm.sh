@@ -15,7 +15,7 @@ p
 w" | fdisk $1
 echo "relax"
 mkfs.ext4 ${1}2
-mkfs.vfat -F ${1}1
+mkfs.vfat -F 32${1}1
 mount ${1}2 /mnt
 mkdir /mnt/boot
 mount ${1}1 /mnt/boot
