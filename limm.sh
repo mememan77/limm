@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#makes partitions (currently doesnt work)
 set -e
 echo "g
 n
@@ -21,27 +21,43 @@ mkdir /mnt/boot
 mount ${1}1 /mnt/boot
 
 echo "relax"
-pacstrap /mnt base base-devel linux linux-firmware
-
+#installs base system and networking
+pacstrap /mnt base base-devel linux linux-firmware dhcpcd networkmanager
 echo "done fetching"
 
+#generates fstab
 genfstab -U /mnt >> /mnt/etc/fstab
 
+#chroots into root
 arch-chroot /mnt /bin/bash <<EOF
 
+#installs grub
 pacman -S --noconfirm grub
 echo "timezones"
+
+#links timezone to local time
 ln -sf /usr/share/zoneinfo/Sweden/Stockholm /etc/localtime  
 hwclock --systohc
 
-locale-gen
-
+#sets up locales and keyboard
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
 echo "KEYMAP=sv-latin1" > /etc/vconsole.conf
 echo "Manifestation" > /etc/hostname
+locale-gen
 
-systemctl enable dhcpcd@eth0.service
-grub-install --target=x86_64-efi --efi-directory=/boot/grub --bootloader-id=Nuclearthreat
+#makes your hostname "archlinux" (change this if you want)
+echo "archlinux" >> /etc/hostname
+
+#generates an initramfs
+mkinitcpio -P
+
+#enables networking on boot
+systemctl enable dhcpcd
+systemctl enable NetworkManager
+
+#installs grub
+pacman -S --noconfirm grub
+grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=Nuclearthreat
 grub-mkconfig -o /boot/grub/grub.cfg
 
 EOF
