@@ -1,5 +1,5 @@
 #!/bin/bash
-#makes partitions (currently doesnt work)
+#makes partitions (execute limm.sh with disk specified ex= ./limm.sh /dev/sdx)
 set -e
 echo "g
 n
